@@ -9,6 +9,7 @@ public class ExpensiveLeh {
 
     private Parser parser = new Parser();
     private Storage storage;
+    private UI ui = new UI();
     private double currentBudget;
     private ArrayList<Expense> expenseList;
 
@@ -30,11 +31,14 @@ public class ExpensiveLeh {
      * Main entry-point for the java.duke.Duke application.
      */
     public void run() {
+
+        ui.showWelcome();
+
         try {
             Command command = parser.readCommand();
         } catch (ExpensiveLehException e) {
-            // TODO: Replace with method from UI class
-            System.out.println(e.getMessage());
+            ui.showError(e.getMessage());
+            ui.showLine();
         }
     }
 
