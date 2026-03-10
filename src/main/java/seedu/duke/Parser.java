@@ -1,4 +1,5 @@
 package seedu.duke;
+
 import java.time.LocalDate;
 import java.util.Scanner;
 
@@ -11,7 +12,7 @@ public class Parser {
 
     public Command readCommand() throws ExpensiveLehException {
         System.out.print("> ");
-        String line =scanner.nextLine().trim();
+        String line = scanner.nextLine().trim();
         String[] partsBySpace = line.split("\\s+");
         String command = partsBySpace[0].toLowerCase();
 

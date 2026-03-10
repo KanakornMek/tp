@@ -14,14 +14,14 @@ public class UI {
     public void showWelcome() {
         String logo = " ______                                 _               _          _     \n"
                 + "|  ____|                               (_)             | |        | |    \n"
-                + "| |__  __  XB  _ __   ___  _ __   ___  _ __   __ ___  | |     ___| |__  \n"
+                + "| |__  __  __  _ __   ___  _ __   ___  _ __   __ ___  | |     ___| |__  \n"
                 + "|  __| \\ \\/ / | '_ \\ / _ \\| '_ \\ / __|| \\ \\ / // _ \\ | |    / _ \\ '_ \\ \n"
                 + "| |____ >  <  | |_) |  __/| | | |\\__ \\| |\\ V /|  __/ | |___|  __/ | | |\n"
                 + "|______/_/\\_\\ | .__/ \\___||_| |_||___/|_| \\_/  \\___| |______\\___|_| |_|\n"
                 + "              | |                                                      \n"
                 + "              |_|                                                      \n";
 
-        System.out.println("Hello from/n" + logo);
+        System.out.println("Hello from \n" + logo);
         System.out.println(lineSeparator);
         System.out.println("Hello! I am an expenses tracker aimed to help you better organise your spending habits! " +
                 "Let's get started!\n" + lineSeparator);
