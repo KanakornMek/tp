@@ -39,8 +39,7 @@ public class Parser {
             }
 
         case "add":
-            System.out.println("Added!");
-            return new AddCommand(new Others("placeholder", 0.0, LocalDate.now()));
+            return parseAddCommand(line);
 
         case "edit":
             try {
@@ -70,6 +69,67 @@ public class Parser {
 
         default:
             throw new ExpensiveLehException("Unknown command. Please use enter 'help' for the user guide.");
+        }
+    }
+
+    private Command parseAddCommand(String line) throws ExpensiveLehException {
+        String category = null;
+        String name = null;
+        Double amount = null;
+        LocalDate date = LocalDate.now();
+
+        try {
+            String[] parts = line.split("\\s+");
+            for (int i = 1; i < parts.length; i++) {
+                String part = parts[i];
+                if (part.startsWith("c/")) {
+                    category = part.substring(2);
+                } else if (part.startsWith("n/")) {
+                    name = part.substring(2);
+                } else if (part.startsWith("a/")) {
+                    amount = Double.parseDouble(part.substring(2));
+                } else if (part.startsWith("d/")) {
+                    date = LocalDate.parse(part.substring(2), java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+                }
+            }
+
+            if (name == null || name.trim().isEmpty()) {
+                throw new ExpensiveLehException("Expense name cannot be empty. Usage: add c/CATEGORY n/NAME a/AMOUNT [d/DD-MM-YYYY]");
+            }
+            if (amount == null) {
+                throw new ExpensiveLehException("Expense amount is required. Usage: add c/CATEGORY n/NAME a/AMOUNT [d/DD-MM-YYYY]");
+            }
+            if (amount <= 0) {
+                throw new ExpensiveLehException("Expense amount must be positive.");
+            }
+            if (category == null || category.trim().isEmpty()) {
+                category = "Others";
+            }
+
+            Expense expense;
+            switch (category.toLowerCase()) {
+            case "food":
+                expense = new Food(name, amount, date);
+                break;
+            case "transport":
+                expense = new Transport(name, amount, date);
+                break;
+            case "groceries":
+                expense = new Groceries(name, amount, date);
+                break;
+            default:
+                expense = new Others(name, amount, date);
+            }
+
+            System.out.println("Added!");
+            return new AddCommand(expense);
+
+        } catch (java.time.format.DateTimeParseException e) {
+            throw new ExpensiveLehException("Invalid date format. Please use DD-MM-YYYY (e.g., 13-03-2026).");
+        } catch (NumberFormatException e) {
+            throw new ExpensiveLehException("Invalid amount format. Please enter a valid number.");
+        } catch (Exception e) {
+            throw new ExpensiveLehException("Invalid add command format. Usage: add c/CATEGORY n/NAME a/AMOUNT [d/DD-MM-YYYY]");
         }
     }
 }
