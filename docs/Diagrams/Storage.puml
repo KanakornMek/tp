@@ -1,0 +1,38 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+package storage {
+    class Storage {
+        - filePath : String
+        + Storage(filePath : String)
+        + save(budget : double, expenses : ArrayList<Expense>) : void
+        + load() : StorageData
+    }
+
+    class "Storage::StorageData" as StorageData {
+        + budget : double
+        + expenses : ArrayList<Expense>
+        + StorageData(budget : double, expenses : ArrayList<Expense>)
+    }
+}
+
+package seedu.duke {
+    abstract class Expense {
+        - description : String
+        - amount : double
+        + getDescription() : String
+        + getAmount() : double
+    }
+
+    class Food extends Expense
+    class Transport extends Expense
+    class Groceries extends Expense
+    class Others extends Expense
+}
+
+' Relationships
+Storage +-- StorageData : contains >
+Storage ..> Expense : saves/loads >
+StorageData o-- "*" Expense : holds list of >
+
+@enduml

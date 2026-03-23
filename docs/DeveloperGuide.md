@@ -4,27 +4,31 @@
 
 {list here sources of all reused/adapted ideas, code, documentation, and third-party libraries -- include links to the original source as well}
 
-## Design & implementation
+## Design 
 
-{Describe the design and implementation of the product. Use UML diagrams and short code snippets where applicable.}
+## Implementation
+
 
 
 ## Product scope
 ### Target user profile
 
-{Describe the target user profile}
+Busy students who want to manage their spending
 
 ### Value proposition
 
-{Describe the value proposition: what problem does it solve?}
+Students who are busy require an easy and convenient way to manage their finances. Our product serves as an easy way for
+them to track their expenses so that they do not overspend their budgets.
 
 ## User Stories
 
-|Version| As a ... | I want to ... | So that I can ...|
-|--------|----------|---------------|------------------|
-|v1.0|new user|see usage instructions|refer to them when I forget how to use the application|
-|v2.0|user|find a to-do item by name|locate a to-do without having to go through the entire list|
-
+| Version | As a ... | I want to ...                            | So that I can ...                         |
+|---------|----------|------------------------------------------|-------------------------------------------|
+| v1.0    | user     | see my past expenses                     | track my total expenditure                |
+| v2.0    | user     | add people who owe me money              | remember to chase them to return my money |
+| v2.0    | user     | mark people who have returned money owed | stop chasing them for money               |
+|         |          |                                          |                                           |
+  
 ## Non-Functional Requirements
 
 {Give non-functional requirements}
