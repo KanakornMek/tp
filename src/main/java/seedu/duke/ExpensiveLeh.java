@@ -15,11 +15,10 @@ public class ExpensiveLeh {
     public void run() {
         try {
             Storage.StorageData data = storage.load();
-            managers = new Managers(new ExpenseManager(data.expenses, data.budget), new LoanManager());
+            managers = new Managers(new ExpenseManager(data.expenses, data.budget), new LoanManager(data.loans));
         } catch (IOException e) {
             ui.showError("Could not load save file: " + e.getMessage());
             managers = new Managers(new ExpenseManager(), new LoanManager());
-            // expenseManager = new ExpenseManager();
         }
 
         ui.showWelcome();
@@ -29,7 +28,8 @@ public class ExpensiveLeh {
             try {
                 Command command = parser.readCommand();
                 command.execute(managers, ui);
-                storage.save(managers.getExpenseManager().getBudget(), managers.getExpenseManager().getExpenses());
+                storage.save(managers.getExpenseManager().getBudget(), managers.getExpenseManager().getExpenses(),
+                        managers.getLoanManager().getLoans());
                 if (command instanceof ExitCommand) {
                     isRunning = false;
                 }

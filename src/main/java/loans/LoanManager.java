@@ -47,7 +47,7 @@ public class LoanManager {
         return loans.remove(index);
     }
 
-    public ArrayList<Loan> getDebts() {
+    public ArrayList<Loan> getLoans() {
         return loans;
     }
 
@@ -63,7 +63,7 @@ public class LoanManager {
      * Calculates the total amount of money currently owed to the user.
      * * @return Total sum of all debts.
      */
-    public double getTotalAmountOwed() {
+    public double getTotalAmountLent() {
         double total = 0.0;
         for (Loan loan : loans) {
             total += loan.getAmount();

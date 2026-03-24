@@ -11,7 +11,7 @@ public class Loan extends Expense {
 
     @Override
     public String getCategory() {
-        return "DEBT";
+        return "loan";
     }
 
     @Override

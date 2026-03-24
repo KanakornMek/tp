@@ -1,5 +1,7 @@
 package seedu.duke;
 
+import loans.Loan;
+
 import java.time.LocalDate;
 import java.util.Scanner;
 
@@ -54,7 +56,10 @@ public class Parser {
             }
 
         case "list":
-            return new ListCommand();
+            return new ListCommand("expenses");
+
+        case "loans":
+            return new ListCommand("loans");
 
         case "help":
             return new HelpCommand();
@@ -79,7 +84,7 @@ public class Parser {
                 } else if (part.startsWith("n/")) {
                     StringBuilder nameParts = new StringBuilder(part.substring(2));
 
-                    while (i + 1 < parts.length && !parts[i+1].startsWith("a/")) {
+                    while (i + 1 < parts.length && !parts[i + 1].startsWith("a/")) {
                         nameParts.append(" ").append(parts[++i]);
                     }
                     name = nameParts.toString();
@@ -117,11 +122,14 @@ public class Parser {
             case "groceries":
                 expense = new Groceries(name, amount, date);
                 break;
+            case "loan":
+                expense = new Loan(name, amount, date);
+                return new AddCommand((Loan) expense, "loan");
             default:
                 expense = new Others(name, amount, date);
             }
 
-            return new AddCommand(expense);
+            return new AddCommand(expense, "expense");
 
         } catch (java.time.format.DateTimeParseException e) {
             throw new ExpensiveLehException("Invalid date format. Please use DD-MM-YYYY (e.g., 13-03-2026).");
@@ -160,7 +168,7 @@ public class Parser {
                 } else if (part.startsWith("n/")) {
                     StringBuilder nameParts = new StringBuilder(part.substring(2));
 
-                    while (i + 1 < parts.length && !parts[i+1].startsWith("a/")) {
+                    while (i + 1 < parts.length && !parts[i + 1].startsWith("a/")) {
                         nameParts.append(" ").append(parts[++i]);
                     }
                     name = nameParts.toString();
