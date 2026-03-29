@@ -190,9 +190,9 @@ public class Parser {
 
         boolean isLoan = false;
         int editIndex;
-        int argStartIndex = 2; // Default start index for arguments (e.g., n/, a/)
+        int argStartIndex = 2; // Default start index for arguments
 
-        // 1. Check if the user is trying to edit a loan
+        // Check if the user is trying to edit a loan
         if (parts[1].equalsIgnoreCase("loan")) {
             isLoan = true;
             if (parts.length < 3) {
@@ -205,7 +205,7 @@ public class Parser {
                 throw new ExpensiveLehException("Please enter a valid integer for the loan index!");
             }
         } else {
-            // 2. Default expense behavior
+            // Default expense behavior
             try {
                 editIndex = Integer.parseInt(parts[1]) - 1;
             } catch (NumberFormatException e) {
@@ -219,7 +219,6 @@ public class Parser {
         LocalDate date = null;
 
         try {
-            // Notice this loop now starts at 'argStartIndex' instead of a hardcoded '2'
             for (int i = argStartIndex; i < parts.length; i++) {
                 String part = parts[i];
                 if (part.startsWith("c/")) {
@@ -249,7 +248,7 @@ public class Parser {
                 throw new ExpensiveLehException("Amount must be positive.");
             }
 
-            // Pass the isLoan flag to the EditCommand!
+            // Pass flag to EditCommand
             String type = isLoan ? "loan" : "expense";
             return new EditCommand(editIndex, category, name, amount, date, type);
 
