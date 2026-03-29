@@ -259,7 +259,8 @@ public class Parser {
             throw new ExpensiveLehException("Invalid amount format. Please enter a valid number.");
         } catch (Exception e) {
             throw new ExpensiveLehException(
-                    "Invalid edit command format. Usage: edit [loan] INDEX [c/CATEGORY] [n/NAME] [a/AMOUNT] [d/DD-MM-YYYY]");
+                    "Invalid edit command format. Usage: " +
+                            "edit [loan] INDEX [c/CATEGORY] [n/NAME] [a/AMOUNT] [d/DD-MM-YYYY]");
         }
     }
 
