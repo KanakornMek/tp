@@ -22,114 +22,123 @@ public class Parser {
         String command = partsBySpace[0].toLowerCase();
 
         switch (command) {
-        case "exit":
-            return new ExitCommand();
+            case "exit":
+                return new ExitCommand();
 
-        case "budget":
-            try {
+            case "budget":
+                try {
+                    if (partsBySpace.length < 2) {
+                        throw new ExpensiveLehException(
+                                "Please provide a budget amount or use 'budget c/CATEGORY a/AMOUNT'!");
+                    }
+
+                    // Check if it's a category budget command
+                    if (line.contains("c/") && line.contains("a/")) {
+                        return parseBudgetCategoryCommand(line);
+                    }
+
+                    // Default to global budget command
+                    double budgetAmount = Double.parseDouble(partsBySpace[1]);
+                    if (budgetAmount <= 0) {
+                        throw new ExpensiveLehException("Budget must be a positive number!");
+                    }
+                    return new BudgetCommand(budgetAmount);
+                } catch (NumberFormatException e) {
+                    throw new ExpensiveLehException("Please enter a valid budget amount!");
+                }
+
+            case "add":
+                return parseAddCommand(line);
+
+            case "edit":
+                return parseEditCommand(line);
+
+            case "delete":
+                try {
+                    if (partsBySpace.length < 3) {
+                        throw new ExpensiveLehException("Usage: delete expense INDEX or delete bookmark INDEX");
+                    }
+
+                    String type = partsBySpace[1];
+                    int deleteIndex = Integer.parseInt(partsBySpace[2]) - 1;
+
+                    if (type.equals("expense")) {
+                        return new DeleteCommand(deleteIndex, "expense");
+                    } else if (type.equals("bookmark")) {
+                        return new DeleteCommand(deleteIndex, "bookmark");
+                    } else {
+                        throw new ExpensiveLehException("Invalid delete type. Use 'expense' or 'bookmark'");
+                    }
+
+                } catch (IndexOutOfBoundsException e) {
+                    throw new ExpensiveLehException("Please enter a valid integer from the expense list!");
+                } catch (NumberFormatException e) {
+                    throw new ExpensiveLehException("Please enter a valid integer!");
+                }
+
+            case "loans": // list all loans only
+                return new ListCommand("loans");
+
+            case "paid":
+                try {
+                    int deleteIndex = Integer.parseInt(partsBySpace[1]) - 1;
+                    return new DeleteCommand(deleteIndex, "loan");
+                } catch (IndexOutOfBoundsException e) {
+                    throw new ExpensiveLehException("Please enter a valid integer from the expense list!");
+                } catch (NumberFormatException e) {
+                    throw new ExpensiveLehException("Please enter a valid integer!");
+                }
+
+            case "bookmark":
+                try {
+                    int bookmarkIndex = Integer.parseInt(partsBySpace[1]) - 1;
+                    return new BookmarkCommand(bookmarkIndex);
+                } catch (IndexOutOfBoundsException e) {
+                    throw new ExpensiveLehException("Please enter a valid integer from the expense list!");
+                } catch (NumberFormatException e) {
+                    throw new ExpensiveLehException("Please enter a valid integer!");
+                }
+
+            case "list": // either list budgets or list expenses
+                if (partsBySpace.length > 1 && partsBySpace[1].equalsIgnoreCase("budgets")) {
+                    return new ListBudgetsCommand();
+                } else if (partsBySpace.length > 1 && partsBySpace[1].equalsIgnoreCase("bookmarks")) {
+                    return new ListCommand("bookmarks");
+                }
+                return new ListCommand("expenses");
+
+
+            case "search":
+                try {
+                    if (partsBySpace.length < 2) {
+                        throw new ExpensiveLehException("Please provide a keyword to search for!");
+                    }
+                    String keyword = line.substring(line.indexOf("search") + 6).trim();
+                    return new SearchCommand(keyword);
+                } catch (Exception e) {
+                    throw new ExpensiveLehException("Search error: " + e.getMessage());
+                }
+
+            case "rank":
                 if (partsBySpace.length < 2) {
-                    throw new ExpensiveLehException(
-                            "Please provide a budget amount or use 'budget c/CATEGORY a/AMOUNT'!");
+                    throw new ExpensiveLehException("Please specify what to rank! Example: rank expenses OR rank loans");
                 }
 
-                // Check if it's a category budget command
-                if (line.contains("c/") && line.contains("a/")) {
-                    return parseBudgetCategoryCommand(line);
-                }
+                String rankType = partsBySpace[1].toLowerCase();
 
-                // Default to global budget command
-                double budgetAmount = Double.parseDouble(partsBySpace[1]);
-                if (budgetAmount <= 0) {
-                    throw new ExpensiveLehException("Budget must be a positive number!");
-                }
-                return new BudgetCommand(budgetAmount);
-            } catch (NumberFormatException e) {
-                throw new ExpensiveLehException("Please enter a valid budget amount!");
-            }
-
-        case "add":
-            return parseAddCommand(line);
-
-        case "edit":
-            return parseEditCommand(line);
-
-        case "delete":
-            try {
-                if (partsBySpace.length < 3) {
-                    throw new ExpensiveLehException("Usage: delete expense INDEX or delete bookmark INDEX");
-                }
-
-                String type = partsBySpace[1];
-                int deleteIndex = Integer.parseInt(partsBySpace[2]) - 1;
-
-                if (type.equals("expense")) {
-                    return new DeleteCommand(deleteIndex, "expense");
-                } else if (type.equals("bookmark")) {
-                    return new DeleteCommand(deleteIndex, "bookmark");
+                if (rankType.equals("expenses") || rankType.equals("expense")) {
+                    return new RankCommand("expense");
+                } else if (rankType.equals("loans") || rankType.equals("loan")) {
+                    return new RankCommand("loan");
                 } else {
-                    throw new ExpensiveLehException("Invalid delete type. Use 'expense' or 'bookmark'");
+                    throw new ExpensiveLehException("Invalid rank category! Example: rank expenses OR rank loans");
                 }
 
-            } catch (IndexOutOfBoundsException e) {
-                throw new ExpensiveLehException("Please enter a valid integer from the expense list!");
-            } catch (NumberFormatException e) {
-                throw new ExpensiveLehException("Please enter a valid integer!");
-            }
+            case "help":
+                return new HelpCommand();
 
-        case "loans": // list all loans only
-            return new ListCommand("loans");
-
-        case "paid":
-            try {
-                int deleteIndex = Integer.parseInt(partsBySpace[1]) - 1;
-                return new DeleteCommand(deleteIndex, "loan");
-            } catch (IndexOutOfBoundsException e) {
-                throw new ExpensiveLehException("Please enter a valid integer from the expense list!");
-            } catch (NumberFormatException e) {
-                throw new ExpensiveLehException("Please enter a valid integer!");
-            }
-
-        case "bookmark":
-            try {
-                int bookmarkIndex = Integer.parseInt(partsBySpace[1]) - 1;
-                return new BookmarkCommand(bookmarkIndex);
-            } catch (IndexOutOfBoundsException e) {
-                throw new ExpensiveLehException("Please enter a valid integer from the expense list!");
-            } catch (NumberFormatException e) {
-                throw new ExpensiveLehException("Please enter a valid integer!");
-            }
-
-        case "list": // either list budgets or list expenses
-            if (partsBySpace.length > 1 && partsBySpace[1].equalsIgnoreCase("budgets")) {
-                return new ListBudgetsCommand();
-            } else if (partsBySpace.length > 1 && partsBySpace[1].equalsIgnoreCase("bookmarks")) {
-                return new ListCommand("bookmarks");
-            }
-            return new ListCommand("expenses");
-
-
-        case "search":
-            try {
-                if (partsBySpace.length < 2) {
-                    throw new ExpensiveLehException("Please provide a keyword to search for!");
-                }
-                String keyword = line.substring(line.indexOf("search") + 6).trim();
-                return new SearchCommand(keyword);
-            } catch (Exception e) {
-                throw new ExpensiveLehException("Search error: " + e.getMessage());
-            }
-
-        case "rank": // either ranks loans or ranks expenses
-            if (partsBySpace.length > 1 && partsBySpace[1].equalsIgnoreCase("loans")) {
-                return new RankCommand("Loan");
-            }
-            return new RankCommand("expense");
-
-        case "help":
-            return new HelpCommand();
-
-        default:
-            throw new ExpensiveLehException("Unknown command. Please use enter 'help' for the user guide.");
+            default:
+                throw new ExpensiveLehException("Unknown command. Please use enter 'help' for the user guide.");
         }
     }
 
@@ -190,20 +199,20 @@ public class Parser {
 
             Expense expense;
             switch (category.toLowerCase()) {
-            case "food":
-                expense = new Food(name, amount, date);
-                break;
-            case "transport":
-                expense = new Transport(name, amount, date);
-                break;
-            case "groceries":
-                expense = new Groceries(name, amount, date);
-                break;
-            case "loan":
-                expense = new Loan(name, amount, date);
-                return new AddCommand((Loan) expense, "loan");
-            default:
-                expense = new Others(name, amount, date);
+                case "food":
+                    expense = new Food(name, amount, date);
+                    break;
+                case "transport":
+                    expense = new Transport(name, amount, date);
+                    break;
+                case "groceries":
+                    expense = new Groceries(name, amount, date);
+                    break;
+                case "loan":
+                    expense = new Loan(name, amount, date);
+                    return new AddCommand((Loan) expense, "loan");
+                default:
+                    expense = new Others(name, amount, date);
             }
 
             return new AddCommand(expense, "expense");
