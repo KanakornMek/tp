@@ -5,7 +5,28 @@
 {list here sources of all reused/adapted ideas, code, documentation, and third-party libraries -- include links to the original source as well}
 
 ## Design 
+### ExpenseManager
 
+The `ExpenseManager` is responsible for managing expenses and budgets:
+
+- **Expense Collection**: Maintains an `ArrayList<Expense>` of all expenses
+- **Budget Tracking**: Tracks both global and category-specific budgets
+- **Search Functionality**: Implements keyword-based search across expenses
+
+Key methods include:
+- `addExpense()`: Adds new expense with validation
+- `deleteExpense()`: Removes expense by index with bounds checking
+- `editExpense()`: Updates expense fields, allowing category changes
+- `setBudget()` / `getBudget()`: Global budget management
+- `setCategoryBudget()` / `getCategoryBudget()`: Category-specific budgets
+- `getRemainingBudget()`: Calculates remaining global budget
+- `getRemainingBudgetForCategory()`: Calculates remaining category budget
+- `searchByKeyword()`: Case-insensitive search across descriptions and categories
+- `getCategoryTotals()`: Get total expenses by category
+
+![ExpenseManager Class Diagram](Diagrams/ExpenseManager.png)
+
+*ExpenseManager class showing expense hierarchy and command relationships*
 ## Implementation
 
 
