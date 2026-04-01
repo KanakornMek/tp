@@ -4,7 +4,28 @@
 
 {list here sources of all reused/adapted ideas, code, documentation, and third-party libraries -- include links to the original source as well}
 
-## Design 
+## Design
+
+### UI component
+
+The UI component consists of a single `UI` class. Its role is to encapsulate all direct interactions with the user through the standard input and output streams.
+
+The class maintains internal state through its `Scanner` object to prevent redundant input stream creation. Its public method signatures define the "API" through which other components, like the main loop and `Commands`, can interact with the user.
+
+![UI Class Diagram](Diagrams/UI_Class_Diagram.png)
+
+**Architecture and Component Interactivity:**
+As illustrated in the class diagram above, the `UI` component acts as the central bridge between the user and the application's logic:
+* **Initialization (`ExpensiveLeh`):** The main application class is responsible for instantiating the single `UI` object when the program starts.
+* **Encapsulation (`Scanner`):** The `UI` class maintains internal state through a single `Scanner` object. By composing the scanner within the UI, the application prevents redundant input stream creation and potential memory leaks.
+* **Dependency (`Command`):** All concrete command subclasses (e.g., `AddCommand`, `RankCommand`) depend on the `UI`. Instead of printing to the console directly, commands pass their execution results to the `UI`'s public methods to be formatted and displayed.
+
+**The UI component's public method API:**
+
+* **Initialization:** The constructor (`UI()`) initializes the scanner for continuous input reading.
+* **Reading Input:** The `readCommand()` method is the primary input portal, utilizing the scanner to capture raw user input from the terminal.
+* **Simple Output:** The `showWelcome()`, `showMessage()`, and `showError()` methods provide simple, persona-aware feedback (e.g., using the "ExpensiveLeh says ->" prefix or wrapping in line separators) for greetings, success messages, and error notifications.
+* **Complex Data Display:** The `showRanking()` method handles the advanced formatting of complex data structures (specifically, creating the visual ASCII bar charts from sorted lists of category or loan totals) before outputting them. It leverages the private `generateBar()` method as an internal helper.
 ### ExpenseManager
 
 The `ExpenseManager` is responsible for managing expenses and budgets:
@@ -27,7 +48,29 @@ Key methods include:
 ![ExpenseManager Class Diagram](Diagrams/ExpenseManager.png)
 
 *ExpenseManager class showing expense hierarchy and command relationships*
+
 ## Implementation
+
+### Application Startup and Main Loop
+
+The startup phase handles the initialization of core components—specifically the User Interface (`UI`)—and establishes the main execution loop that continuously listens for and processes user commands.
+
+The sequence diagram below illustrates the interactions that occur when the user first launches the `ExpensiveLeh` application.
+
+![UI Startup Sequence Diagram](Diagrams/UIStartup.png)
+
+**How the startup and main loop execution works:**
+
+1. When the user launches the application, the main `ExpensiveLeh` class begins its execution.
+2. `ExpensiveLeh` creates a new instance of the `UI` class to handle user interactions.
+3. `ExpensiveLeh` invokes the `showWelcome()` method on the `UI` object.
+4. The `UI` component prints the application's custom ASCII logo and a welcome greeting to the user's console.
+5. Following the greeting, the application enters a continuous `loop` that remains active until the exit command ("bye") is triggered.
+6. Within this loop, `ExpensiveLeh` calls `ui.readCommand()` to pause execution and wait for the user to type something.
+7. The user types a command string into the terminal.
+8. When this happens, the `UI` component captures this input and returns the raw command string back to `ExpensiveLeh`.
+9. `ExpensiveLeh` then passes this raw string over to the `Parser` component to be interpreted and executed, which eventually leads to specific command flows.
+
 
 ### Expense Management Features
 
@@ -46,9 +89,9 @@ The add expense feature is implemented through the `AddCommand` class and `Expen
 3. **Execution**: The `AddCommand#execute()` method calls `ExpenseManager#addExpense()` to add the expense after validation.
 
 4. **Validation**: The `ExpenseManager#addExpense()` method validates the expense object:
-   - Checks that the expense is not null
-   - Ensures amount is non-negative, finite, and not NaN
-   - Uses assertions to verify the expense is added to the list
+    - Checks that the expense is not null
+    - Ensures amount is non-negative, finite, and not NaN
+    - Uses assertions to verify the expense is added to the list
 
 5. **Feedback**: The UI displays a success message with the expense details and remaining budget.
 
@@ -96,8 +139,8 @@ The delete expense feature is implemented through the `DeleteCommand` class and 
 1. **Index-Based Deletion**: Expenses are deleted using a 1-based index as visible to users (internally converted to 0-based).
 
 2. **Bounds Checking**: The `ExpenseManager#deleteExpense()` method validates the index before deletion:
-   - Ensures index is non-negative
-   - Ensures index is less than the expenses list size
+    - Ensures index is non-negative
+    - Ensures index is less than the expenses list size
 
 3. **User Feedback**: The UI displays confirmation with the deleted expense's details.
 
@@ -186,7 +229,27 @@ The budget tracking system supports both global and category-specific budgets:
 - *Pros*: Encapsulates budget logic, easier to extend, allows persistence integration
 - *Cons*: More complex design, additional class to maintain
 
+### Rank Feature
 
+The rank feature allows users to visualize their spending habits or loan distributions by displaying an ordered ASCII bar chart. It supports ranking both expenses (by category) and loans (by person).
+
+The feature is facilitated by `RankCommand`. It relies on `ExpenseManager` or `LoanManager` to calculate the aggregate totals, and the `UI` component to render the visual representation.
+
+The sequence diagram below illustrates the interactions within the system when a user executes the `rank expenses` command.
+
+![RankCommand Sequence Diagram](Diagrams/RankCommandDiagram.png)
+
+**How the `RankCommand` execution works:**
+
+1. When the user inputs `rank expenses`, the `Parser` reads the command string.
+2. The `Parser` identifies the "expenses" keyword and creates a new `RankCommand` object, passing `"expense"` as the type flag.
+3. The `execute(managers, ui)` method is called on the `RankCommand` object.
+4. `RankCommand` accesses the central `Managers` object to retrieve the `ExpenseManager`. *(Note: If the command was `rank loans`, it would retrieve the `LoanManager` instead. More details written below).*
+5. It calls `getCategoryTotals()` on the `ExpenseManager`, which returns a map containing each category and its total aggregated amount.
+6. The `RankCommand` converts this unsorted map into an `ArrayList` and sorts it in descending order based on the monetary values.
+7. Finally, `RankCommand` invokes `ui.showRanking()`, passing in the sorted list and the type flag. The `UI` component loops through the list, calculates the proportional length of the ASCII bar for each item relative to the highest amount, and displays the formatted chart to the user.
+
+The same method of execution works for the user input `rank loans` as well. In this similar case, `Parser` identifies the "loans" keyword and carries out the same execution, however, it instead retrieves `LoanManager` and calls `getPersonsTotals()`, which returns a map containing the total aggregated, owed amounts, grouped by person.
 
 ## Product scope
 ### Target user profile
