@@ -27,17 +27,23 @@ As illustrated in the class diagram above, the `UI` component acts as the centra
 * **Simple Output:** The `showWelcome()`, `showMessage()`, and `showError()` methods provide simple, persona-aware feedback (e.g., using the "ExpensiveLeh says ->" prefix or wrapping in line separators) for greetings, success messages, and error notifications.
 * **Complex Data Display:** The `showRanking()` method handles the advanced formatting of complex data structures (specifically, creating the visual ASCII bar charts from sorted lists of category or loan totals) before outputting them. It leverages the private `generateBar()` method as an internal helper.
 
-### Logic component
+
+### Parser component
 
 API: `Parser.java`
 
-Here is the class diagram of the `Parser` class of the `Logic` component:
+Here is the class diagram of the `Parser` component:
 ![Parser Class Diagram](Diagrams/ParserClassDiagram.png)
 
-The sequence diagram below illustrates the interactions within the Logic component.
+
+The class diagram below shows the dependencies of `Command` on `Managers`, `UI`, 
+and `Expense` subclasses:
+![Parser Dependencies Class Diagram](Diagrams/ParserDependenciesDiagram.png)
+
+The sequence diagram below illustrates the interactions within the `Parser` component:
 ![readCommand Sequence Diagram](Diagrams/ReadCommandSequenceDiagram.png)
 
-How the Logic component works:
+How the `Parser` component works:
 
 * When `ExpensiveLeh` is called upon to execute a command, the input is passed to the `Parser` object via `readCommand()`, which reads and tokenises the raw input string.
 * This results in `Parser` returning a `Command` subclass object, such as `AddCommand`, back to `ExpensiveLeh`.
@@ -68,10 +74,65 @@ allowing for easy transfer between the storage layer and main logic. During data
 * The `Storage` object calls `save()` and converts in-memory objects (those in `storageData`) to a text format to be saved on the hard disk.
 * On application start, `Storage` calls `load()` and parses the file line-by-line, recreating the objects in `StorageData`. 
 
-
-
 In addition, error handling is handled through `ExpensiveLehException` when corrupted data or invalid file formats are encountered. 
 `Logger` is also used to track warnings when unknown data categories are envountered during the loading process.
+
+### Expense Superclass
+
+The `Expense` class is an abstract superclass that represents a generic financial transaction. It uses inheritance to support different expense categories while maintaining a common interface.
+
+**Design Structure:**
+
+The `Expense` class provides a unified structure for all types of expenses with the following characteristics:
+
+- **Protected Attributes:**
+  - `description: String` - The name or description of the expense
+  - `amount: double` - The monetary value of the expense
+  - `date: LocalDate` - When the expense occurred (defaults to today if not specified)
+
+- **Core Methods:**
+  - `getDescription()`: Returns the expense description
+  - `getAmount()`: Returns the expense amount
+  - `getDate()`: Returns the expense date as a LocalDate object
+  - `getFormattedDate()`: Returns the date formatted as "dd-MM-yyyy"
+  - `getCategory()`: Abstract method implemented by subclasses to return the category name
+  - `toString()`: Provides a formatted string representation of the expense
+
+**Concrete Subclasses:**
+
+The following concrete subclasses extend `Expense` to represent different expense categories:
+- `Food`: Represents food and dining expenses
+- `Transport`: Represents transportation expenses
+- `Groceries`: Represents grocery and household item expenses
+- `Others`: Represents expenses that don't fit other categories
+
+Each subclass implements the `getCategory()` method to return its specific category name.
+
+**Design Rationale:**
+
+Using an abstract superclass provides several benefits:
+1. **Polymorphism**: All expenses can be treated uniformly via the `Expense` interface, regardless of category
+2. **Code Reuse**: Common functionality (date formatting, getters) is defined once in the superclass
+3. **Extensibility**: New expense categories can be added by creating new subclasses without modifying existing code
+4. **Type Safety**: Each expense has a fixed category determined by its class type, preventing invalid category strings
+
+**Example:**
+
+When the user adds a food expense with `add c/Food n/Lunch a/10.50`, the parser creates a `Food` object:
+```java
+Expense lunch = new Food("Lunch", 10.50);
+```
+
+Note: The `Expense` class provides two constructor overloads:
+- `Expense(String description, double amount, LocalDate date)` - Allows specifying a custom date
+- `Expense(String description, double amount)` - Defaults to today's date via `LocalDate.now()`
+
+This expense can then be added to the `ExpenseManager`'s collection and treated as a generic `Expense` object, while still maintaining its specific `Food` category identity through the `getCategory()` method.
+
+![Expense Class Diagram](Diagrams/Expense.png)
+
+*Expense class hierarchy showing the abstract superclass and its concrete subclasses*
+
 
 ### ExpenseManager
 
@@ -119,6 +180,7 @@ The sequence diagram below illustrates the interactions that occur when the user
 8. When this happens, the `UI` component captures this input and returns the raw command string back to `ExpensiveLeh`.
 9. `ExpensiveLeh` then passes this raw string over to the `Parser` component to be interpreted and executed, which eventually leads to specific command flows.
 
+---
 
 ### Expense Management Features
 
@@ -178,6 +240,8 @@ The following sequence diagram shows how an add expense operation flows through 
 
 ![Add Expense Sequence Diagram](Diagrams/AddExpenseSequenceDiagram.png)
 
+---
+
 #### Delete Expense Feature
 
 **Proposed Implementation**
@@ -219,6 +283,8 @@ expense delete 1
 The following sequence diagram shows how a delete expense operation flows through the system:
 
 ![Delete Expense Sequence Diagram](Diagrams/DeleteExpenseSequenceDiagram.png)
+
+---
 
 #### Edit Expense Feature
 
@@ -265,6 +331,73 @@ The budget tracking system supports both global and category-specific budgets:
 
 3. **Case Insensitivity**: All category comparisons and keys are stored and compared in lowercase for consistency.
 
+#### Search Expense Feature
+
+**Proposed Implementation**
+
+The search feature allows users to find expenses by keyword using case-insensitive matching across both the expense description and category. It is implemented through the `SearchCommand` class and `ExpenseManager#searchByKeyword()` method. The flow involves:
+
+1. **Parser Phase**: The user input `search KEYWORD` is parsed to extract the search keyword (e.g., "chicken").
+
+2. **Command Creation**: The `Parser` creates a new `SearchCommand` object, passing the lowercase version of the keyword.
+
+3. **Execution**: The `SearchCommand#execute()` method calls `ExpenseManager#searchByKeyword(keyword)` to retrieve matching expenses.
+
+4. **Matching Logic**: The `searchByKeyword()` method:
+    - Converts the keyword to lowercase for case-insensitive comparison
+    - Iterates through all expenses in the collection
+    - Matches expenses where the description OR category contains the keyword (case-insensitive)
+    - Returns a new `ArrayList<Expense>` containing all matching expenses
+
+5. **Feedback**: The UI displays results in a formatted table with Index, Category, Name, Value, and Date columns. If no matches are found, a message is displayed.
+
+**Example Usage Scenario:**
+
+**Step 1.** The user has the following expenses in the system:
+```
+1. Food | Chicken Rice | $8.50 | 20-03-2026
+2. Transport | MRT fare | $2.00 | 20-03-2026
+3. Groceries | Chicken breast | $12.00 | 21-03-2026
+4. Food | Beef noodles | $5.50 | 21-03-2026
+```
+
+**Step 2.** The user wants to find all expenses related to "chicken" and enters:
+```
+search chicken
+```
+
+**Step 3.** The `Parser` recognizes the "search" keyword and creates a `SearchCommand` with keyword "chicken". 
+The keyword is automatically converted to lowercase internally for case-insensitive matching.
+
+**Step 4.** The `SearchCommand#execute()` calls `ExpenseManager#searchByKeyword("chicken")`.
+
+**Step 5.** The `ExpenseManager` searches through all expenses:
+    - "Chicken Rice" description contains "chicken" ✓ (Match 1)
+    - "MRT fare" description doesn't contain "chicken" ✗
+    - "Chicken breast" description contains "chicken" ✓ (Match 2)
+    - "Beef noodles" description doesn't contain "chicken" ✗
+
+**Step 6.** The method returns a list with 2 matching expenses.
+
+**Step 7.** The UI displays:
+```
+Search results for 'chicken':
+Index  Category     Name                 Value       Date
+1      Food         Chicken Rice         $8.50       20-03-2026
+2      Groceries    Chicken breast       $12.00      21-03-2026
+```
+
+**Design Characteristics:**
+
+- **Case-Insensitive Matching**: Both the keyword and expense fields are converted to lowercase for comparison, allowing users to search without worrying about capitalization.
+- **Partial Matching**: The search uses substring matching (`.contains()`), so "chick" would match "Chicken Rice" and "Chicken breast".
+- **Dual Field Search**: The search checks both expense description and category, providing flexibility. For example, searching "food" would match any Food category expense.
+- **Non-Destructive**: Search results are displayed separately and don't modify the actual expense list.
+
+The sequence diagram below illustrates the interactions within the system when a user executes the `search KEYWORD` command:
+
+![SearchCommand Sequence Diagram](Diagrams/SearchCommandDiagram.png)
+
 #### Design Considerations
 
 **Aspect: Budget Storage**
@@ -276,6 +409,8 @@ The budget tracking system supports both global and category-specific budgets:
 **Alternative 2:** Create a `Budget` class with methods for all budget operations.
 - *Pros*: Encapsulates budget logic, easier to extend, allows persistence integration
 - *Cons*: More complex design, additional class to maintain
+
+---
 
 ### Rank Feature
 
@@ -316,8 +451,66 @@ Whenever `save()` method is invoked in `main`,
 3. Resource Cleanup
    1. After all data is written, `FileWriter` is destroyed and `Storage` hands control back to `main`.
 
-The data is written using a predetermined delimited string format, which can be referred to in the **Instructions for Manual Testing**.   
+The data is written using a predetermined delimited string format, which can be referred to in the **Instructions for Manual Testing**.
 
+---
+
+### Bookmarks Feature
+
+**Proposed Implementation**
+
+The bookmark feature is facilitated by the `Bookmark` class in the `storage` package and `BookmarkCommand` in the `seedu.duke` package. 
+The `Bookmark` class maintains an`ArrayList<Expense>` of bookmarked expenses, stored internally and persisted to a file. 
+It implements the following operations:
+
+- `Bookmark.addBookmark(expense)` — Adds an expense in the expense list to the bookmark list.
+- `Bookmark.removeBookmark(index)` — Removes a bookmarked expense at the given index in the bookmark list.
+- `Bookmark.getBookmark(index)` — Retrieves a bookmarked expense at the given index in the bookmark list.
+- `Bookmark.save()` — Persists the current bookmark list to the save file.
+- `Bookmark.load()` — Loads the bookmark list from the save file on startup.
+
+Here is the class diagram of `Bookmark`:
+
+![Bookmark Class Diagram](Diagrams/BookmarkClassDiagram.png)
+
+The sequence diagram below illustrates the interactions within the system when a user executes the `Bookmark` command.
+
+![BookmarkCommand Sequence Diagram](Diagrams/BookmarkSequenceDiagram.png)
+
+Given below is an example usage of `BookmarkCommand`:
+
+**Step 1.** The user executes `bookmark 2` to bookmark the 2nd expense in the expense list. 
+`Parser` parses the index and creates a `BookmarkCommand(1)`.
+
+**Step 2.** `BookmarkCommand.execute()` retrieves the expense at index 1 from `ExpenseManager` via `Managers.getExpenseManager()`.
+
+**Step 3.** `Bookmark.addBookmark(expense)` is called to add the retrieved expense to the bookmark list.
+
+**Step 4.** `Bookmark.save()` is called to immediately persist the updated bookmark list to `data/bookmarks.txt`.
+
+**Design Considerations**
+
+**Aspect: How bookmarks are persisted**
+
+**Alternative 1 (current choice):** Save the entire bookmark list to file after every modification.
+- *Pros*: Simple to implement. The save file is always up to date, so no data is lost if the application crashes.
+- *Cons*: Rewrites the entire file even for a single addition or deletion, which may be slow if the bookmark list is large.
+
+**Alternative 2:** Persist bookmarks only when the application exits, rather than after every modification.
+- *Pros*: More efficient as file read or write only happens once per session.
+- *Cons*: If the application crashes mid-session, all bookmark changes made during that session will be lost
+
+**Aspect: How bookmarked expenses are stored**
+
+**Alternative 1 (current choice):** Store bookmarks as `Expense` objects in an `ArrayList`, saved to a separate file from expenses.
+- *Pros*: Bookmarks are independent of the expense list, so deleting an expense does not affect saved bookmarks.
+- *Cons*: The bookmarked expense and the original expense are separate copies, so edits to the original expense are not reflected in the bookmark.
+
+**Alternative 2:** Store bookmarks as indices referencing the expense list.
+- *Pros*: Bookmarks always reflect the latest state of the referenced expense since they point directly to it.
+- *Cons*: Bookmarks become invalid if the referenced expense is deleted or if the expense list order changes, requiring additional validation logic.
+
+---
 
 
 ## Product scope
