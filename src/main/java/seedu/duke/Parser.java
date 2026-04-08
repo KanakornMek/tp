@@ -59,7 +59,8 @@ public class Parser {
             try {
                 if (partsBySpace.length < 3) {
                     throw new ExpensiveLehException(
-                            "Usage: delete expense INDEX, delete loan INDEX, or delete bookmark INDEX");
+                            "Missing details. Usage: "
+                            + "delete expense INDEX, delete loan INDEX, or delete bookmark INDEX");
                 }
 
                 String type = partsBySpace[1];
@@ -118,7 +119,7 @@ public class Parser {
 
         case "rank":
             if (partsBySpace.length < 2) {
-                throw new ExpensiveLehException("Please specify what to rank! Example: rank expenses OR rank loans");
+                throw new ExpensiveLehException("Please specify what to rank! Example: rank expenses or rank loans");
             }
 
             String rankType = partsBySpace[1].toLowerCase();
