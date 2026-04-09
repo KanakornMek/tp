@@ -1,9 +1,9 @@
 @startuml Delete Expense Sequence Diagram
 actor User
-participant "Parser" as Parser
-participant "DeleteCommand" as DeleteCmd
-participant "ExpenseManager" as EM
-participant "UI" as UI
+participant ":Parser" as Parser
+participant ":DeleteCommand" as DeleteCmd
+participant ":ExpenseManager" as EM
+participant ":UI" as UI
 
 User -> Parser: expense delete INDEX
 activate Parser

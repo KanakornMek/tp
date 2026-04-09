@@ -1,11 +1,11 @@
 @startuml Edit Expense Sequence Diagram
 actor User
-participant "Parser" as Parser
-participant "EditCommand" as EditCmd
-participant "ExpenseManager" as EM
-participant "Expense" as Expense
-participant "Food" as Food
-participant "UI" as UI
+participant ":Parser" as Parser
+participant ":EditCommand" as EditCmd
+participant ":ExpenseManager" as EM
+participant ":Expense" as Expense
+participant ":Food" as Food
+participant ":UI" as UI
 
 User -> Parser: expense edit INDEX /c CATEGORY /n NAME /v VALUE /d DATE
 activate Parser

@@ -9,11 +9,11 @@ skinparam sequence {
 hide footbox
 
 actor User
-participant "Parser" as Parser
-participant "AddCommand" as AddCmd
-participant "ExpenseManager" as EM
-participant "Expense" as Expense
-participant "UI" as UI
+participant ":Parser" as Parser
+participant ":AddCommand" as AddCmd
+participant ":ExpenseManager" as EM
+participant ":Expense" as Expense
+participant ":UI" as UI
 
 User -> Parser: expense add /c CATEGORY /n NAME /v VALUE /d DATE
 activate Parser
