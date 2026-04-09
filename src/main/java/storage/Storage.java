@@ -92,6 +92,7 @@ public class Storage {
 
                 // Defensive Check: Ensure the separator exists
                 if (!line.contains(" | ")) {
+                    logger.log(Level.WARNING, "Invalid line: " + line);
                     throw new IOException("Data corruption at line " + lineCount + ": Missing separator ' | '");
                 }
 
@@ -102,6 +103,7 @@ public class Storage {
                         validatePartsCount(parts, 2, lineCount);
                         loadedBudget = Double.parseDouble(parts[1]);
                         if (loadedBudget < 0) {
+                            logger.log(Level.WARNING, "Invalid line: " + line);
                             throw new IOException("Negative budget at line " + lineCount);
                         }
                         continue;
@@ -112,6 +114,7 @@ public class Storage {
                         String category = parts[1].toLowerCase();
                         double amount = Double.parseDouble(parts[2]);
                         if (amount < 0){
+                            logger.log(Level.WARNING, "Invalid line: " + line);
                             throw new IOException("Negative category budget at line " + lineCount);
                         }
                         loadedCategoryBudgets.put(category, amount);
@@ -126,6 +129,7 @@ public class Storage {
                     LocalDate date = LocalDate.parse(parts[3]);
 
                     if (amount < 0){
+                        logger.log(Level.WARNING, "Invalid line: " + line);
                         throw new IOException("Negative amount at line " + lineCount);
                     }
 
@@ -136,8 +140,10 @@ public class Storage {
                     }
 
                 } catch (NumberFormatException e) {
+                    logger.log(Level.WARNING, "Invalid line: " + line);
                     throw new IOException("Data corruption at line " + lineCount + ": Invalid number format.");
                 } catch (java.time.format.DateTimeParseException e) {
+                    logger.log(Level.WARNING, "Invalid line: " + line);
                     throw new IOException("Data corruption at line " + lineCount +
                             ": Invalid date format (Expected YYYY-MM-DD).");
                 }

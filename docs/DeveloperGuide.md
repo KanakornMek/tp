@@ -74,7 +74,7 @@ allowing for easy transfer between the storage layer and main logic. During data
 * The `Storage` object calls `save()` and converts in-memory objects (those in `storageData`) to a text format to be saved on the hard disk.
 * On application start, `Storage` calls `load()` and parses the file line-by-line, recreating the objects in `StorageData`. 
 
-In addition, error handling is handled through `ExpensiveLehException` when corrupted data or invalid file formats are encountered. 
+In addition, error handling is handled through `IOException` when corrupted data or invalid file formats are encountered. 
 `Logger` is also used to track warnings when unknown data categories are envountered during the loading process.
 
 ### Expense Superclass
