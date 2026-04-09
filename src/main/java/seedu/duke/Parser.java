@@ -185,20 +185,25 @@ public class Parser {
                 }
             }
 
+            // 1. Check Category first
+            if (category == null || category.trim().isEmpty()) {
+                throw new ExpensiveLehException(
+                        "Valid CATEGORY is required. Usage: add c/CATEGORY n/NAME a/AMOUNT [d/DD-MM-YYYY]");
+            }
+
+            // 2. Check Name second
             if (name == null || name.trim().isEmpty()) {
                 throw new ExpensiveLehException(
-                        "NAME cannot be empty. Usage: add c/CATEGORY n/NAME a/AMOUNT [d/DD-MM-YYYY]");
+                        "Valid NAME is required. Usage: add c/CATEGORY n/NAME a/AMOUNT [d/DD-MM-YYYY]");
             }
+
+            // 3. Check Amount third
             if (amount == null) {
                 throw new ExpensiveLehException(
                         "AMOUNT is required. Usage: add c/CATEGORY n/NAME a/AMOUNT [d/DD-MM-YYYY]");
             }
             if (amount <= 0) {
-                throw new ExpensiveLehException("Expense amount must be positive.");
-            }
-            if (category == null || category.trim().isEmpty()) {
-                throw new ExpensiveLehException(
-                        "Valid CATEGORY required. Usage: add c/CATEGORY n/NAME a/AMOUNT [d/DD-MM-YYYY]");
+                throw new ExpensiveLehException("Expense amount must be positive!");
             }
 
             Expense expense;
