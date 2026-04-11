@@ -75,7 +75,7 @@ allowing for easy transfer between the storage layer and main logic. During data
 * On application start, `Storage` calls `load()` and parses the file line-by-line, recreating the objects in `StorageData`. 
 
 In addition, error handling is handled through `IOException` when corrupted data or invalid file formats are encountered. 
-`Logger` is also used to track warnings when unknown data categories are envountered during the loading process.
+`Logger` is also used to track the line where error corruption has occurred.
 
 ### Expense Superclass
 
@@ -575,6 +575,7 @@ able to accomplish most of the tasks faster using commands than using the mouse.
 
 * **Mainstream OS**: Windows, Linux, Unix, MacOS
 * **Expenses**: Food, Groceries, Transport, Others
+* **Name** and **Description** are used interchangeably to mean the name/description of the expense or loan.
 
 ## Instructions for manual testing
 
@@ -584,14 +585,23 @@ Given below are instructions to test the app manually. Note that users are expec
 
 Correct format: `add c/CATEGORY a/AMOUNT n/DESCRIPTION [d/DATE]`
 
-1. Test case: `add`. 
+Eg: `add c/food a/10 n/Mcdonalds` 
+
+1. Test case: Add without additional information.
+
+    Eg: `add`. 
 - Expected: `Missing details. Usage: add c/CATEGORY n/NAME a/AMOUNT [d/DD-MM-YYYY]`
 
-2. Test case: Missing any one of the compulsory parameters.
-- Expected: `PARAMETER is required. Usage: add c/CATEGORY n/NAME a/AMOUNT [d/DD-MM-YYYY]`
+2. Test case: Incomplete compulsory parameter(s).
+  
+    Eg: `add c/ a/10 n/KFC`
+- Expected: `CATEGORY is required. Usage: add c/CATEGORY n/NAME a/AMOUNT [d/DD-MM-YYYY]`
+Note: The error corresponds to the incomplete parameter. In this case, it is `CATEGORY`. It may also be `NAME` or `AMOUNT`. 
 
 3. Test case: Negative amount provided.
-- Expected `Amount must be positive`.
+    
+    Eg: `add c/food a/-20 n/KFC`
+- Expected: `Amount must be positive!`.
 
 ### Searching for expenses and loans
 
@@ -617,26 +627,8 @@ Correct format: `search KEYWORD`
 
 ### Saving data
 **WARNING:** Save a copy of expenses.txt elsewhere first before attempting any changes to expenses.txt.
-Any unexpected data expected in expenses.txt will cause all data to be deleted.
 
-1.**Dealing with corrupted data in the expenses.txt file**
-
-To simulate corrupted data, open the expenses.txt file and perform any of the following changes:
-1. remove `|` from any of the lines
-2. replace a number with a character
-3. change the date format
-4. Insert a negative amount for `BUDGET` , `CATEGORY BUDGET` or expense/loan `AMOUNT`
-5. replace the expenses or loan category from `F`, `G`, `T`, `O`, `L` to another string or character
-
-Expected: `Could not save data: REASON`. Nothing will be loaded from the file and all data will be deleted. 
-Users will need to re-input their data either manually on the expenses.txt file or via the application.    
-
-2. **Manually editing data in expenses.txt file**
-
-This is generally not recommended as there is a risk of inputting the wrong data, causing everything to be
-deleted. Only proceed if you are confident of modifying the data. 
-
-The table below summarises the expected formats in expenses.txt 
+The table below summarises the expected formats in expenses.txt
 
 | Category        | Format                                | Remarks                                                                                                                   |
 |-----------------|---------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
@@ -656,4 +648,34 @@ The table below summarises the expected formats in expenses.txt
 | AMOUNT          | double           |
 | NAME            | string           |
 | DATE            | YYYY-MM-DD       |
+
+#### 1. Testing for expected behaviour
+1. Start with no `./data` directory
+2. Start the application and add expenses, loans, and budgets.
+3. Check that `./data/expenses.txt` exists and the data format follows the table above.
+4. Restart the application and edit/add more data.
+5. Check that `./data/expenses.txt` reflects the changes.
+
+#### 2. **Dealing with corrupted data in the expenses.txt file**
+
+
+To simulate corrupted data, open the expenses.txt file and perform any of the following changes:
+1. remove or add `|` from any of the lines
+2. replace a number with a character
+3. change the date format
+4. Insert a negative amount for `BUDGET` , `CATEGORY BUDGET` or expense/loan `AMOUNT`
+5. replace the expenses or loan category from `F`, `G`, `T`, `O`, `L` to another string or character
+
+Expected: `WARNING: Corrupted line LINE_COUNT: REASON`, where `LINE_COUNT` is an integer corresponding to the line in expenses.txt
+and `REASON` is the error encountered when loading the line.
+
+Example: At line 3 of expenses.txt, input `F | KFC | 3.0  2026-04-11`
+
+Output: `WARNING:  Corrupted line 3: Incorrect number of '|' provided. Line deleted.`
+
+The application will automatically delete the corrupted line, and move on to the next line.   
+
+
+
+
 
