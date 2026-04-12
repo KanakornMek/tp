@@ -215,6 +215,9 @@ public class Parser {
                     date = LocalDate.parse(part.substring(2),
                             java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy"));
                     hasDate = true;
+                } else if (part.startsWith("/") && part.length() > 1) {
+                    throw new ExpensiveLehException("Invalid format. Please use n/ for name, a/ for amount, "
+                            + "c/ for category, or d/ for date. Usage: add c/CATEGORY n/NAME a/AMOUNT [d/DD-MM-YYYY]");
                 }
             }
 
@@ -377,6 +380,10 @@ public class Parser {
                     date = LocalDate.parse(part.substring(2),
                             java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy"));
                     hasDate = true;
+                } else if (part.startsWith("/") && part.length() > 1) {
+                    throw new ExpensiveLehException("Invalid format. Please use n/ for name, a/ for amount, "
+                            + "c/ for category, or d/ for date. Usage: edit [loan/expense] INDEX "
+                            + "[c/CATEGORY] [n/NAME] [a/AMOUNT] [d/DD-MM-YYYY]");
                 }
             }
 
