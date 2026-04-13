@@ -15,6 +15,7 @@ The class maintains internal state through its `Scanner` object to prevent redun
 ![UI Class Diagram](Diagrams/UI_Class_Diagram.png)
 
 **Architecture and Component Interactivity:**
+
 As illustrated in the class diagram above, the `UI` component acts as the central bridge between the user and the application's logic:
 * **Initialization (`ExpensiveLeh`):** The main application class is responsible for instantiating the single `UI` object when the program starts.
 * **Encapsulation (`Scanner`):** The `UI` class maintains internal state through a single `Scanner` object. By composing the scanner within the UI, the application prevents redundant input stream creation and potential memory leaks.
@@ -33,14 +34,17 @@ As illustrated in the class diagram above, the `UI` component acts as the centra
 API: `Parser.java`
 
 Here is the class diagram of the `Parser` component:
+
 ![Parser Class Diagram](Diagrams/ParserClassDiagram.png)
 
 
 The class diagram below shows the dependencies of `Command` on `Managers`, `UI`, 
 and `Expense` subclasses:
+
 ![Parser Dependencies Class Diagram](Diagrams/ParserDependenciesDiagram.png)
 
 The sequence diagram below illustrates the interactions within the `Parser` component:
+
 ![readCommand Sequence Diagram](Diagrams/ReadCommandSequenceDiagram.png)
 
 How the `Parser` component works:
@@ -61,7 +65,9 @@ How the parsing works:
 ### Storage Component
 
 API:  `Storage.java`
+
 ![Storage class diagram](Diagrams/Storage.png)
+
 The `Storage` component is responsible for reading data from, and writing data to, the hard disk. This ensures that
 user data—such as budgets, expenses, and loans—is persisted across different sessions of the application.
 
@@ -423,7 +429,7 @@ The sequence diagram below illustrates the interactions within the system when a
 
 ![SearchCommand Sequence Diagram](Diagrams/SearchCommandDiagram.png)
 
-#### Design Considerations
+**Design Considerations**
 
 **Aspect: Budget Storage**
 
@@ -592,7 +598,6 @@ able to accomplish most of the tasks faster using commands than using the mouse.
 * **Budget** refers to the global budget. This must be more than the sum of **category budgets**.
 * **Category budgets** refer to either the budget for **Food**, **Groceries**, **Transport** or **Others**.
 
-
 ## Instructions for manual testing
 
 Given below are instructions to test the app manually. Note that users are expected to more exploratory testing.
@@ -703,6 +708,7 @@ After adding expenses, the application tracks remaining budget automatically.
 - Expected: Food category remaining budget shows $150.00
 
 ### Saving data
+
 **WARNING:** Save a copy of expenses.txt elsewhere first before attempting any changes to expenses.txt.
 
 The table below summarises the expected formats in expenses.txt

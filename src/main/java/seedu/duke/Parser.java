@@ -3,6 +3,7 @@ package seedu.duke;
 import loans.Loan;
 
 import java.time.LocalDate;
+import java.time.format.ResolverStyle;
 import java.util.Scanner;
 
 /**
@@ -213,7 +214,8 @@ public class Parser {
                                 + "Usage: add c/CATEGORY n/NAME a/AMOUNT [d/DD-MM-YYYY]");
                     }
                     date = LocalDate.parse(part.substring(2),
-                            java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+                            java.time.format.DateTimeFormatter.ofPattern("dd-MM-uuuu")
+                                    .withResolverStyle(ResolverStyle.STRICT));
                     hasDate = true;
                 } else if (part.startsWith("/") && part.length() > 1) {
                     throw new ExpensiveLehException("Invalid format. Please use n/ for name, a/ for amount, "
@@ -280,7 +282,9 @@ public class Parser {
         } catch (ExpensiveLehException e) {
             throw e;
         } catch (java.time.format.DateTimeParseException e) {
-            throw new ExpensiveLehException("Invalid date format. Please use DD-MM-YYYY (e.g., 13-03-2026).");
+            throw new ExpensiveLehException(
+                    "Invalid date! The date you entered does not exist. " +
+                            "Please enter a real calendar date in DD-MM-YYYY format.");
         } catch (NumberFormatException e) {
             throw new ExpensiveLehException("Invalid amount format. Please enter a valid number.");
         } catch (Exception e) {
@@ -378,7 +382,8 @@ public class Parser {
                                 + "Usage: add c/CATEGORY n/NAME a/AMOUNT [d/DD-MM-YYYY]");
                     }
                     date = LocalDate.parse(part.substring(2),
-                            java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+                            java.time.format.DateTimeFormatter.ofPattern("dd-MM-uuuu")
+                                    .withResolverStyle(ResolverStyle.STRICT));
                     hasDate = true;
                 } else if (part.startsWith("/") && part.length() > 1) {
                     throw new ExpensiveLehException("Invalid format. Please use n/ for name, a/ for amount, "
@@ -419,7 +424,9 @@ public class Parser {
         } catch (ExpensiveLehException e) {
             throw e;
         } catch (java.time.format.DateTimeParseException e) {
-            throw new ExpensiveLehException("Invalid date format. Please use DD-MM-YYYY (e.g., 13-03-2026).");
+            throw new ExpensiveLehException(
+                    "Invalid date! The date you entered does not exist. " +
+                            "Please enter a real calendar date in DD-MM-YYYY format.");
         } catch (NumberFormatException e) {
             throw new ExpensiveLehException("Invalid amount format. Please enter a valid number.");
         } catch (Exception e) {
