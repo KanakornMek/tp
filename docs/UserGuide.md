@@ -500,7 +500,7 @@ To search for expenses and loans, use 'search KEYWORD'. Eg: search chicken
 To rank expenses by amount, use 'rank expenses'
 To rank loans by amount, use 'rank loans'
 To view all commands, use 'help'
-To exit the program, use 'exit'
+To exit the program, use 'exit', 'bye' or 'quit'
 ________________________________________________________________
 ```
 
@@ -510,7 +510,7 @@ Loans, expenses, bookmarks and budgets are automatically saved in the disk. Ther
 ### Exit
 Exits the program.
 
-Format: `exit`
+Format: `exit` or `bye` or `quit`
 
 Output:
 ```
@@ -558,6 +558,6 @@ ________________________________________________________________
 | Rank expenses            | `rank expenses`                                              | `rank expenses`                                 |
 | Rank loans               | `rank loans`                                                 | `rank loans`                                    |
 | Help                     | `help`                                                       | `help`                                          |
-| Exit                     | `exit`                                                       | `exit`                                          |
+| Exit                     | `exit` or `bye` or `quit`                                   | `exit`                                          |
 
 ```
